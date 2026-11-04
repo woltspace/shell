@@ -1,0 +1,10 @@
+{
+  "name": "shell",
+  "description": "Shell: a phone for a wolt. Voice notes back and forth, to-dos, and anything else you ask your wolt for.",
+  "stack": "python",
+  "port": 4033,
+  "start": "python3 server.py --port $PORT",
+  "keeper": "set-me",
+  "emoji": "\ud83d\udc1a",
+  "public": false
+}

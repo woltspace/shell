@@ -1,0 +1,22 @@
+{
+  "name": "{{WOLT}}",
+  "short_name": "{{WOLT}}",
+  "description": "Shell, a phone for your wolt: talk to it, record meetings, keep to-dos, and see the cards it makes.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f1e8",
+  "theme_color": "#f5f1e8",
+  "icons": [
+    {
+      "src": "/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" data-creature="{{CREATURE}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{WOLT}}</title>
+<meta name="theme-color" content="#f5f1e8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18100a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="{{WOLT}}">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="icon" href="/icon-180.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="sprite" viewBox="0 0 25 25"></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-todo" viewBox="0 0 24 24"><circle cx="5" cy="6.5" r="1.8"/><circle cx="5" cy="12" r="1.8"/><circle cx="5" cy="17.5" r="1.8"/><path d="M10 6.5h10M10 12h10M10 17.5h10"/></symbol>
+  <symbol id="i-board" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9.500" r="1.500"/><path d="m4.500 18 5-4.500 3 2.500 3-3 4 4"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-4 3.500V17a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-ask" viewBox="0 0 24 24"><path d="M8.800 8.500a3.300 3.300 0 1 1 5 2.800c-1.100.700-1.800 1.400-1.800 2.700"/><path d="M12 18.500v.1"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 20V5M5.5 11.5 12 5l6.500 6.500"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</svg>
+
+<nav id="tabs">
+  <div class="brand"><svg class="sprite" viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"><use href="#sprite"/></svg>{{WOLT}}</div>
+  <button type="button" data-tab="listen" class="on"><svg aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></button>
+  <button type="button" data-tab="todos"><svg aria-hidden="true"><use href="#i-todo"/></svg><span>To-dos</span><span id="todo-count" class="count" hidden></span></button>
+  <button type="button" data-tab="ask" aria-label="Ask for anything"><svg aria-hidden="true"><use href="#i-ask"/></svg></button>
+  <button type="button" data-tab="board" hidden><svg aria-hidden="true"><use href="#i-board"/></svg><span>Feed</span></button>
+</nav>
+
+<div id="pull" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.500v5" transform="rotate(0 12 12)" opacity="0.08"/><path d="M12 2.500v5" transform="rotate(30 12 12)" opacity="0.17"/><path d="M12 2.500v5" transform="rotate(60 12 12)" opacity="0.25"/><path d="M12 2.500v5" transform="rotate(90 12 12)" opacity="0.33"/><path d="M12 2.500v5" transform="rotate(120 12 12)" opacity="0.42"/><path d="M12 2.500v5" transform="rotate(150 12 12)" opacity="0.50"/><path d="M12 2.500v5" transform="rotate(180 12 12)" opacity="0.58"/><path d="M12 2.500v5" transform="rotate(210 12 12)" opacity="0.67"/><path d="M12 2.500v5" transform="rotate(240 12 12)" opacity="0.75"/><path d="M12 2.500v5" transform="rotate(270 12 12)" opacity="0.83"/><path d="M12 2.500v5" transform="rotate(300 12 12)" opacity="0.92"/><path d="M12 2.500v5" transform="rotate(330 12 12)" opacity="1.00"/></svg></div>
+
+<main>
+  <div class="column">
+    <p id="error" class="notice bad" role="alert" hidden></p>
+    <p id="setup" class="notice" hidden></p>
+  </div>
+  <section id="tab-listen" class="column">
+    <div class="top">
+      <svg class="sprite" viewBox="0 0 22 22" shape-rendering="crispEdges" aria-hidden="true"><use href="#sprite"/></svg>
+      <h1>Home</h1>
+      <label class="attach" title="Add a recording"><svg aria-hidden="true"><use href="#i-plus"/></svg><input id="file" type="file" accept="audio/*,video/mp4" aria-label="Add a recording"></label>
+    </div>
+    <ul id="feed"></ul>
+  </section>
+  <section id="tab-todos" class="column" hidden>
+    <h1>To-dos</h1>
+    <ul id="todos"></ul>
+    <h2 id="done-heading" hidden>Done</h2>
+    <ul id="done"></ul>
+  </section>
+  <section id="tab-ask" class="column" hidden>
+    <div class="empty welcome ask">
+      <svg class="sprite" viewBox="0 0 22 22" shape-rendering="crispEdges" aria-hidden="true"><use href="#sprite"/></svg>
+      <h1>This tab is yours</h1>
+      <p>Ask {{WOLT}} to create whatever you want here.</p>
+    </div>
+  </section>
+  <section id="tab-board" class="column" hidden>
+    <h1>Feed</h1>
+    <p id="board-empty" class="empty"></p>
+    <ul id="board"></ul>
+  </section>
+</main>
+
+<div id="dock">
+  <form id="write" class="column">
+    <textarea id="write-text" rows="1"></textarea>
+    <button id="record" type="button" aria-label="Start listening"><svg id="record-icon" aria-hidden="true"><use href="#i-mic"/></svg></button>
+  </form>
+</div>
+
+<div id="toast" role="status" hidden></div>
+
+<div id="listening" hidden>
+  <div class="sheet" role="dialog" aria-label="Listening">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <svg class="sprite bob" viewBox="0 0 22 22" shape-rendering="crispEdges" aria-hidden="true"><use href="#sprite"/></svg>
+      <div><h2>Listening</h2><p id="record-hint"></p></div>
+    </div>
+    <div id="wave" aria-hidden="true"></div>
+    <div id="clock">0:00</div>
+    <label class="jot"><span>Your notes</span><textarea id="notes" rows="3" placeholder="Jot anything. {{WOLT}} will build on it."></textarea></label>
+    <button id="stop" type="button" aria-label="Stop listening"></button>
+  </div>
+</div>
+
+<div id="card-view" hidden>
+  <div class="panel">
+    <header><button id="card-back" type="button">‹ Back</button><span id="card-title"></span></header>
+    <div id="card-body"></div>
+  </div>
+</div>
+<script>
+// Kept apart from app.js: if an edit breaks the app, the fix must still reach the open screen.
+(function () {
+  var seen = 0;
+  setInterval(function () {
+    fetch("/api/activity").then(function (r) { return r.json(); }).then(function (a) {
+      if (!a.version) return;
+      if (seen && a.version !== seen && !document.getElementById("listening").offsetParent) {
+        try { sessionStorage.setItem("draft", document.getElementById("write-text").value); } catch (e) {}
+        location.reload();
+      }
+      seen = a.version;
+    }).catch(function () {});
+  }, 1500);
+})();
+</script>
+<script src="/app.js"></script>
+</body>
+</html>
