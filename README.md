@@ -24,10 +24,18 @@ save what you learn in your memory as you go. Ask before installing anything.
      afterwards.
    - Neither: Shell still works on this computer, but not on the phone yet. Tell your owner they need an address
      with a login first (the `woltspace-cloudflare` skill sets one up on their own Cloudflare account).
-2. **Check voice.** Shell transcribes and speaks on this computer only. Run `woltspace transcription show` and
-   `woltspace speech show`: both need a server on `127.0.0.1`, such as [Wocal](https://github.com/woltspace/wocal)
-   (Apple Silicon Macs only, a few GB to download). Without one, typing still works, but voice notes wait and replies
-   have no voice. Offer Wocal, and install it only with your owner's OK, following its README.
+2. **Set up voice.** Shell uses the lodge's voice settings: `woltspace transcription show` and `woltspace speech show`.
+   If both already work, go on. Otherwise let your owner pick one, and install nothing without their OK:
+   - **Wocal: free and private, Apple Silicon Macs only.** Speech stays on this computer; a few GB to download.
+     Follow [Wocal's README](https://github.com/woltspace/wocal), section "For wolts".
+   - **OpenAI: quick, any computer.** Voice notes and replies go to OpenAI, at a small cost per use. Your owner adds
+     `OPENAI_API_KEY=...` to the lodge's `.env` themselves (never paste a key in chat), then:
+     `woltspace transcription set --base-url https://api.openai.com/v1 --model gpt-4o-transcribe --key-env OPENAI_API_KEY`
+     and `woltspace speech set --base-url https://api.openai.com/v1 --model gpt-4o-mini-tts --voice nova --key-env OPENAI_API_KEY`.
+     Don't set the app's own `voice` in `data/settings.json` then: OpenAI has its own voice names.
+
+   Without either, typing still works, but voice notes wait and replies have no voice. Shell picks up a change
+   within 20 seconds, no restart.
 3. **Clone it into the lodge's apps folder.** The folder is `apps` inside the `wolts_dir` that `woltspace paths`
    prints. Clone this repo there as `shell`, or as `shell-<your name>` if there's already a `shell`.
 4. **Make yourself its keeper and start it:** `woltspace app keeper <folder> <your wolt name>`, then

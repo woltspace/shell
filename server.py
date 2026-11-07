@@ -56,7 +56,6 @@ CONTENT_SUFFIXES = {
     "audio/webm": ".webm", "video/webm": ".webm", "audio/ogg": ".ogg", "audio/mp4": ".m4a", "video/mp4": ".mp4",
     "audio/x-m4a": ".m4a", "audio/mpeg": ".mp3", "audio/wav": ".wav", "audio/x-wav": ".wav", "audio/flac": ".flac",
 }
-LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 ID_RE = re.compile(r"^[0-9a-f]{32}$")
 LOCK = threading.RLock()
 QUEUE = threading.Semaphore(0)
@@ -112,24 +111,44 @@ def personalize(name, body):
     return body
 
 
+def api_key(name):
+    """A key from the environment, this app's .env, or the lodge's shared .env. Never logged or sent to the phone."""
+    if os.environ.get(name):
+        return os.environ[name]
+    for path in (ROOT / ".env", ROOT.parent.parent / ".env"):
+        if path.is_file():
+            found = re.search(rf"^(?:export )?{re.escape(name)}=[\"']?([^\"'\n]+)", path.read_text(encoding="utf-8"), re.M)
+            if found:
+                return found.group(1).strip()
+    return ""
+
+
+def auth_headers(found):
+    """Local servers need no key. A hosted one uses the key the lodge's setting names."""
+    if not found.get("key_env"):
+        return {}
+    key = api_key(found["key_env"])
+    if not key:
+        raise ValueError(f"{found['key_env']} isn't set")
+    return {"Authorization": f"Bearer {key}"}
+
+
 def settings_voice():
     """An app can have its own voice, apart from the lodge's."""
     return json.loads(SETTINGS.read_text(encoding="utf-8")).get("voice", "") if SETTINGS.is_file() else ""
 
 
 def speak(message_id, text):
-    """Turn a reply into audio on this computer. A failure only costs the voice: the words still show."""
+    """Turn a reply into audio with the lodge's speech service. A failure only costs the voice: the words still show."""
     voiced = False
     try:
         found = json.loads(subprocess.run(
             [shutil.which("woltspace", path="/usr/local/bin") or "woltspace", "speech", "show", "--json"],
             capture_output=True, text=True, timeout=20,
         ).stdout)["speech"]
-        if urllib.parse.urlsplit(found.get("base_url") or "").hostname not in LOCAL_HOSTS:
-            raise ValueError("speech isn't on this computer")
         words = re.sub(r"[*_`#]|[^\w\s.,:;!?'\"()/%&+-]", "", text)[:1000]
         request = urllib.request.Request(
-            found["base_url"].rstrip("/") + "/audio/speech", method="POST", headers={"Content-Type": "application/json"},
+            found["base_url"].rstrip("/") + "/audio/speech", method="POST", headers={"Content-Type": "application/json", **auth_headers(found)},
             data=json.dumps({"model": found["model"], "voice": settings_voice() or found["voice"], "input": words, "response_format": "mp3"}).encode(),
         )
         with urllib.request.urlopen(request, timeout=120) as response:
@@ -235,11 +254,10 @@ def speech_setting():
             [shutil.which("woltspace", path="/usr/local/bin") or "woltspace", "transcription", "show", "--json"], capture_output=True, text=True, timeout=20,
         )
         found = json.loads(result.stdout)["transcription"]
-        host = urllib.parse.urlsplit(found.get("base_url") or "").hostname
-        if host in LOCAL_HOSTS and not found.get("key_env"):
+        if found.get("base_url") and (not found.get("key_env") or api_key(found["key_env"])):
             setting = found
         else:
-            message = "No speech model on this computer yet. Recordings are saved and will be transcribed once there is."
+            message = "Voice isn't set up yet. Recordings are saved and will be transcribed once it is."
     except (OSError, ValueError, KeyError, subprocess.SubprocessError):
         message = "Speech isn't set up yet. Recordings are saved and will be transcribed once it is."
     speech_cache = (time.time(), setting, message)
@@ -256,7 +274,7 @@ def transcribe(audio_path, setting):
     body = head + audio_path.read_bytes() + f"\r\n--{boundary}--\r\n".encode()
     request = urllib.request.Request(
         setting["base_url"].rstrip("/") + "/audio/transcriptions", data=body,
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"}, method="POST",
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}", **auth_headers(setting)}, method="POST",
     )
     with urllib.request.urlopen(request, timeout=3600) as response:
         return json.loads(response.read())["text"].strip()
