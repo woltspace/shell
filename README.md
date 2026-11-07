@@ -11,18 +11,37 @@ and JavaScript with no build step, so editing a file is all it takes to change i
 
 ## For wolts: give yourself a Shell
 
-1. **Check voice.** Shell transcribes and speaks on this computer only. Run `woltspace transcription show` and
-   `woltspace speech show`: both need a server on `127.0.0.1`, such as [Wocal](https://github.com/woltspace/wocal).
-   Without one, typing still works, but voice notes wait and replies have no voice. Ask your owner before installing Wocal.
-2. **Clone it into the lodge's apps folder.** The folder is `apps` inside the `wolts_dir` that `woltspace paths`
+Your owner pointed you here. Work through these steps in order, tell them in a line or two what you're doing, and
+save what you learn in your memory as you go. Ask before installing anything.
+
+1. **Check the lodge has an address with a login.** Run `woltspace paths` and look in the `.env` inside `wolts_dir`
+   for `CLOUDFLARE_TUNNEL_URL` and `CLOUDFLARE_TUNNEL_TOKEN` (check they're set; never print the token).
+   - Both set: the lodge has its own address, behind the owner's login. Go on.
+   - Not set, and your owner has a setup file for their address (often an encrypted `*-lodge-setup.txt.enc`): help
+     them decrypt it with the command inside or the one they were given. They type the password themselves, never
+     in chat. Follow the file's steps, without printing or repeating the token. Wolts don't restart the lodge, so ask
+     your owner to run `woltspace restart`, then check that the lodge address asks for a login. Delete the plain file
+     afterwards.
+   - Neither: Shell still works on this computer, but not on the phone yet. Tell your owner they need an address
+     with a login first (the `woltspace-cloudflare` skill sets one up on their own Cloudflare account).
+2. **Check voice.** Shell transcribes and speaks on this computer only. Run `woltspace transcription show` and
+   `woltspace speech show`: both need a server on `127.0.0.1`, such as [Wocal](https://github.com/woltspace/wocal)
+   (Apple Silicon Macs only, a few GB to download). Without one, typing still works, but voice notes wait and replies
+   have no voice. Offer Wocal, and install it only with your owner's OK, following its README.
+3. **Clone it into the lodge's apps folder.** The folder is `apps` inside the `wolts_dir` that `woltspace paths`
    prints. Clone this repo there as `shell`, or as `shell-<your name>` if there's already a `shell`.
-3. **Make yourself its keeper and start it:** `woltspace app keeper <folder> <your wolt name>`, then
+4. **Make yourself its keeper and start it:** `woltspace app keeper <folder> <your wolt name>`, then
    `woltspace app start <folder>`. If port 4033 is taken, change `port` in its `woltspace.json` first.
-4. **Check it:** open `http://127.0.0.1:<port>/`. It should show your name and your creature. Send yourself a typed
+5. **Check it:** open `http://127.0.0.1:<port>/`. It should show your name and your creature. Send yourself a typed
    message from it and answer through `POST /api/chat/reply` (below).
-5. **Getting it onto the phone is your owner's call.** Shell has no login of its own, and whoever can open it can
-   message you with all your tools. Only share it behind a login, such as the lodge's Cloudflare Access. Never on an
-   open link. Then the owner adds it to the iPhone's home screen from Safari's Share menu.
+6. **Put it on the phone, only behind the login.** Shell has no login of its own, and whoever can open it can message
+   you with all your tools. Share it only if step 1 found an address: `curl -X POST http://localhost:7777/apps/<folder>/share`.
+   Without one, sharing makes an open link anyone can use, so don't. `curl -s http://localhost:7777/apps` shows its
+   link: the folder name on the lodge's domain (`lodge.NAME.example` gives `<folder>.NAME.example`). Open it without a
+   login cookie (`curl -sI <link>`): it must redirect to a login page. If it doesn't, unshare right away
+   (`/apps/<folder>/unshare`) and tell your owner.
+7. **Hand it over.** Send your owner the link. On an iPhone: open it in Safari, sign in, then Share, Add to Home
+   Screen. Ask them to send you a first voice note or message from it, and answer it.
 
 Put `{"voice": "eve"}` in `data/settings.json` to give the app its own voice. To make "Continue in Telegram" a link,
 put `{"telegram_url": "https://t.me/your_bot"}` in `data/settings.json`. Without it, the app just says the wolt messaged
